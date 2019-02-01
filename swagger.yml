@@ -1,0 +1,103 @@
+swagger: "2.0"
+info:
+  description: "This is a simple API that exposes a diff operation."
+  version: "v1"
+  title: "Assignment Scalable Web"
+  contact:
+    email: "cesdperez@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/v1"
+host: "localhost:8080"
+paths:
+  /diff/{id}:
+    get:
+      summary: "Returns the diff between /diff/{id}/left and /diff/{id}/right."
+      description: "It just counts how many bytes are different given 2 byte arrays. If the array lengths are not the same, all remaining bytes are considered different. (eg comparing {0,1} and {0,1,0} will return 1."
+      operationId: "getDiff"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the diff to return"
+        required: true
+        type: "string"
+      responses:
+        200:
+          $ref: "#/definitions/Diff"
+        412:
+          description: "Either left or right dont exist for that ID."
+  /diff/{id}/left:
+    put:
+      summary: "Creates or updates the left part for this diff ID."
+      operationId: "putLeft"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "diff ID for which left part will be persisted."
+        required: true
+        type: "string"
+      - name: "content"
+        in: "body"
+        description: "Content to be diffed, encoded in Base64."
+        required: true
+        schema:
+          $ref: "#/definitions/BinaryContent"
+      responses:
+        201:
+          description: "Content created or updated successfully."
+        400:
+          description: "Content is not a valid Base64 encoded value."
+  /diff/{id}/right:
+    put:
+      summary: "Creates or updates the right part for this diff ID."
+      operationId: "putRight"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "diff ID for which left part will be persisted."
+        required: true
+        type: "string"
+      - name: "content"
+        in: "body"
+        description: "Content to be diffed, encoded in Base64."
+        required: true
+        schema:
+          $ref: "#/definitions/BinaryContent"
+      responses:
+        201:
+          description: "Content created or updated successfully."
+        400:
+          description: "Content is not a valid Base64 encoded value."
+definitions:
+  BinaryContent:
+    type: "object"
+    properties:
+      content:
+        type: "string"
+        format: "binary"
+  Diff:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      left:
+        type: "string"
+        format: "binary"
+      right:
+        type: "string"
+        format: "binary"
+      diff:
+        type: "string"
